@@ -727,6 +727,111 @@ if(screen==='game')requestAnimationFrame(loop);
 drawLobbyBg();
 
 })();
+<script>
+(()=>{
+const old=document.getElementById('characterUpdate');
+if(old)return;
+
+const style=document.createElement('style');
+style.id='characterUpdate';
+style.textContent=`
+.char-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.char-item{background:#142b3d;padding:14px;border:1px solid #38bde766;border-radius:12px}
+.char-icon{font-size:42px}
+.char-item button{width:100%;margin-top:8px}
+`;
+document.head.appendChild(style);
+
+let cosmetics=JSON.parse(localStorage.getItem('blazeCosmetics')||'{"character":"Blaze","outfit":"Default","mask":"None","emote":"Victory"}');
+
+const characters=[
+['Blaze','🔥','Default'],
+['Phantom','👻','Shadow'],
+['Cyber','🤖','Cyber'],
+['Ranger','🪖','Combat']
+];
+
+const outfits=[
+['Default','🧥',0],
+['Shadow','🥷',500],
+['Cyber','🤖',1000],
+['Golden','👑',1800],
+['Inferno','🔥',2500]
+];
+
+const masks=['None','Tactical Mask','Cyber Mask','Phantom Mask'];
+const emotes=['Victory','Dance','Salute','Laugh'];
+
+function save(){
+localStorage.setItem('blazeCosmetics',JSON.stringify(cosmetics));
+}
+
+function page(){
+let el=document.createElement('div');
+el.className='extra-screen active';
+el.id='characterPage';
+el.innerHTML=`
+<h2>🎭 CHARACTER CUSTOMIZATION</h2>
+<div class="extra-card" style="text-align:center">
+<div style="font-size:75px">🪖</div>
+<h2>${cosmetics.character}</h2>
+Outfit: ${cosmetics.outfit}<br>
+Mask: ${cosmetics.mask}<br>
+Emote: ${cosmetics.emote}
+</div>
+<h3>CHARACTERS</h3>
+<div class="char-grid">
+${characters.map(c=>`
+<div class="char-item">
+<div class="char-icon">${c[1]}</div>
+<b>${c[0]}</b>
+<button onclick="CF.character('${c[0]}')">SELECT</button>
+</div>`).join('')}
+</div>
+<h3>OUTFITS</h3>
+${outfits.map(o=>`
+<div class="extra-card">
+${o[1]} <b>${o[0]}</b> — ${o[2]} coins
+<button onclick="CF.outfit('${o[0]}',${o[2]})">EQUIP / BUY</button>
+</div>`).join('')}
+<h3>MASKS</h3>
+<div class="extra-card">
+${masks.map(m=>`<button onclick="CF.mask('${m}')">${m}</button>`).join('')}
+</div>
+<h3>EMOTES</h3>
+<div class="extra-card">
+${emotes.map(m=>`<button onclick="CF.emote('${m}')">${m}</button>`).join('')}
+</div>
+<button onclick="this.parentElement.remove()">BACK</button>
+`;
+document.body.appendChild(el);
+}
+
+window.CF={
+character(n){
+cosmetics.character=n;save();alert(n+' selected!');
+},
+outfit(n,cost){
+let d=JSON.parse(localStorage.getItem('blazeUltimate')||'{}');
+if(cosmetics.outfit!==n&&cost>0){
+if((d.coins||0)<cost)return alert('Not enough coins!');
+d.coins-=cost;
+localStorage.setItem('blazeUltimate',JSON.stringify(d));
+}
+cosmetics.outfit=n;save();alert(n+' outfit equipped!');
+},
+mask(n){cosmetics.mask=n;save();alert(n+' selected!')},
+emote(n){cosmetics.emote=n;save();alert(n+' emote equipped!')}
+};
+
+let grid=document.querySelector('.menu-grid');
+if(grid){
+let b=document.createElement('button');
+b.textContent='🎭 CHARACTER';
+b.onclick=page;
+grid.appendChild(b);
+}
+})();
 </script>
 </body>
 </html>
