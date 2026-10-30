@@ -872,6 +872,36 @@ window.addBPXP=()=>{bp.xp=Math.min(1000,bp.xp+50);saveBP();passUI()};
 let menu=document.querySelector('.menu-grid');
 if(menu){let b=document.createElement('button');b.textContent='🎟️ BATTLE PASS';b.onclick=passUI;menu.appendChild(b)}
 })();
+<script>
+(()=>{
+const key='blazeRankBoard';
+let board=JSON.parse(localStorage.getItem(key)||'[]');
+function showBoard(){
+let old=document.getElementById('rankBoard');
+if(old)old.remove();
+let el=document.createElement('div');
+el.id='rankBoard';
+el.style.cssText='position:fixed;inset:0;background:#080c16;color:white;z-index:999999;padding:20px;overflow:auto';
+let rows=board.sort((a,b)=>b.kills-a.kills).map((p,i)=>
+`<p>${i+1}. ${p.name} — ${p.kills} kills</p>`).join('');
+el.innerHTML=`<h1>🏆 BR LEADERBOARD</h1>
+<p>Local device records</p>${rows||'<p>No records yet. Play a match!</p>'}
+<button onclick="this.parentElement.remove()">CLOSE</button>`;
+document.body.appendChild(el);
+}
+window.saveBlazeRecord=(kills)=>{
+board.push({name:'BL4ZE',kills:Number(kills)||0});
+board=board.slice(-30);
+localStorage.setItem(key,JSON.stringify(board));
+};
+let menu=document.querySelector('.menu-grid');
+if(menu){
+let b=document.createElement('button');
+b.textContent='🏆 LEADERBOARD';
+b.onclick=showBoard;
+menu.appendChild(b);
+}
+})();
 </script>
 </body>
 </html>
