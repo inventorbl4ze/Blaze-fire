@@ -832,6 +832,46 @@ b.onclick=page;
 grid.appendChild(b);
 }
 })();
+<style>
+.bp-card{background:#171d2b;color:white;padding:15px;border:1px solid #39445c;border-radius:12px;margin:10px 0}
+.bp-card button{background:#ff9d00;color:#111;border:0;padding:9px 14px;border-radius:8px;font-weight:bold}
+.bp-track{height:12px;background:#333;border-radius:10px;overflow:hidden}
+.bp-fill{height:100%;background:#ff9d00;width:0%}
+</style>
+
+<script>
+(()=>{
+let bp=JSON.parse(localStorage.getItem('blazePass')||'{"xp":0,"claimed":[]}');
+function saveBP(){localStorage.setItem('blazePass',JSON.stringify(bp))}
+function passUI(){
+let tier=Math.floor(bp.xp/100)+1;
+let html=`<div class="bp-card">
+<h2>🔥 BL4ZE PASS</h2>
+<p>Season 1 · Tier ${tier}/10</p>
+<div class="bp-track"><div class="bp-fill" style="width:${Math.min(100,bp.xp%100)}%"></div></div>
+<p>${bp.xp%100}/100 XP to next tier</p>`;
+for(let i=1;i<=10;i++){
+html+=`<div class="bp-card">Tier ${i} — ${i*100} XP<br>
+Reward: ${i*100} Coins<br>
+${bp.claimed.includes(i)?'✅ Claimed':`<button onclick="claimBP(${i})">Claim</button>`}
+</div>`;
+}
+html+=`<button onclick="addBPXP()">Complete daily mission (+50 XP)</button></div>`;
+let old=document.getElementById('bpScreen');
+if(old)old.remove();
+let el=document.createElement('div');
+el.id='bpScreen';el.style.cssText='position:fixed;inset:0;background:#080c16;z-index:99999;overflow:auto;padding:15px;color:white';
+el.innerHTML=html+'<button onclick="this.parentElement.remove()">CLOSE</button>';
+document.body.appendChild(el);
+}
+window.claimBP=i=>{
+if(bp.xp<i*100||bp.claimed.includes(i))return alert('Tier not unlocked yet!');
+bp.claimed.push(i);saveBP();passUI();
+};
+window.addBPXP=()=>{bp.xp=Math.min(1000,bp.xp+50);saveBP();passUI()};
+let menu=document.querySelector('.menu-grid');
+if(menu){let b=document.createElement('button');b.textContent='🎟️ BATTLE PASS';b.onclick=passUI;menu.appendChild(b)}
+})();
 </script>
 </body>
 </html>
